@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/appStore";
 import NotificationPanel from "../components/NotificationPanel";
 import { FiBell, FiX } from "react-icons/fi";
 
-function Header() {
+const Header = React.memo(() => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -107,7 +107,7 @@ function Header() {
 
   const unreadCount =
     notifications.filter(
-      (notification) =>
+      (notification : any) =>
         !notification.read
     ).length;
 
@@ -274,56 +274,9 @@ function Header() {
                 </div>
               </div>
 
-              {/* Profile */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsProfileOpen(false);
-                  navigate("/profile");
-                }}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-300 transition hover:bg-white/[0.05] hover:text-white"
-              >
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 21a8 8 0 0 1 16 0" />
-                </svg>
-
-                Profile
-              </button>
-
-              {/* Settings */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsProfileOpen(false);
-                  navigate("/settings");
-                }}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-300 transition hover:bg-white/[0.05] hover:text-white"
-              >
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                >
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.5 1.5-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2.12v-.4a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.5-1.5.06-.06A1.7 1.7 0 0 0 9.14 15a1.7 1.7 0 0 0-1.56-1.03H7.2v-2.12h.38A1.7 1.7 0 0 0 9.14 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.5-1.5.06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1.03-1.56V5h2.12v.4a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.5 1.5-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.56 1.03h.04v2.12h-.04A1.7 1.7 0 0 0 19.4 15Z" />
-                </svg>
-
-                Settings
-              </button>
 
               {/* Divider */}
-              <div className="my-1.5 border-t border-white/[0.06]" />
+              <div className="my-1.5" />
 
               {/* Logout */}
               <button
@@ -383,6 +336,6 @@ function Header() {
         )}
     </header>
   );
-}
+})
 
 export default Header;

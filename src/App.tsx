@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react'
+import { lazy, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Layout from './layout/Layout';
-import Dashboard from './pages/Dashboard';
-import Board from './pages/Board';
-import Analytics from './pages/Analytics';
-import Login from './pages/Login';
-import ProtectedRoute from './components/ProtectedRoute';
 
 import { useAppStore } from "./store/appStore";
-import PublicRoute from './components/PublicRoute';
 
-function App() {
+const Layout = lazy(() => import("./layout/Layout"));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Board = lazy(() => import('./pages/Board'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const PublicRoute = lazy(() => import('./components/PublicRoute'));
+const Login = lazy(() => import('./pages/Login'));
+
+const App = () => {
+
   const restoreSession = useAppStore(
     (state) => state.restoreSession
   );
@@ -18,8 +20,9 @@ function App() {
   const isInitializing = useAppStore(
     (state) => state.isInitializing
   );
+  useEffect((
 
-  useEffect(() => {
+  ) => {
     restoreSession();
   }, [restoreSession]);
 
@@ -34,26 +37,26 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "",
-      element: <ProtectedRoute><Layout/></ProtectedRoute> ,
-      children : [
+      element: <ProtectedRoute><Layout /></ProtectedRoute>,
+      children: [
         {
-          path : "/",
-          element : <Dashboard />
+          path: "/",
+          element: <Dashboard />
         },
         {
-          path : "/board",
-          element : <Board />
+          path: "/board",
+          element: <Board />
 
         },
         {
-          path : "/analytics",
-          element : <Analytics />
+          path: "/analytics",
+          element: <Analytics />
         }
       ]
     },
     {
-      path : "/login",
-      element :<PublicRoute > <Login /></PublicRoute>
+      path: "/login",
+      element: <PublicRoute > <Login /></PublicRoute>
     }
   ]);
 

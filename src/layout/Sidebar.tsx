@@ -4,28 +4,26 @@ import {
   FiColumns,
   FiBarChart2,
 } from "react-icons/fi";
+import React from "react";
 
-function Sidebar() {
+const  Sidebar = React.memo(() => {
   return (
     <aside className="flex sticky h-screen w-64 flex-col border-r border-white/20 bg-[#0d0f12] p-4 text-white">
-      {/* Logo */}
       <div className="mb-10 flex items-center gap-3 px-2">
-      
+
 
         <h1 className="text-xl font-bold italic upppercase ">
           SPRINTDESK
         </h1>
       </div>
 
-      {/* Navigation */}
       <nav className="space-y-2">
         <NavLink
           to="/"
           className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-              isActive
-                ? "bg-blue-600/10 text-blue-400"
-                : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
+            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
+              ? "bg-blue-600/10 text-blue-400"
+              : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
             }`
           }
         >
@@ -37,10 +35,9 @@ function Sidebar() {
         <NavLink
           to="/board"
           className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-              isActive
-                ? "bg-blue-600/10 text-blue-400"
-                : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
+            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
+              ? "bg-blue-600/10 text-blue-400"
+              : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
             }`
           }
         >
@@ -52,10 +49,9 @@ function Sidebar() {
         <NavLink
           to="/analytics"
           className={({ isActive }) =>
-            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-              isActive
-                ? "bg-blue-600/10 text-blue-400"
-                : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
+            `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${isActive
+              ? "bg-blue-600/10 text-blue-400"
+              : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
             }`
           }
         >
@@ -67,5 +63,5 @@ function Sidebar() {
     </aside>
   );
 }
-
+)
 export default Sidebar;
