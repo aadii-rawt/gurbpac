@@ -1,8 +1,12 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import {
+  useNotificationPolling,
+} from "../hooks/useNotificationPolling";
 
 function Layout() {
+  useNotificationPolling();
   return (
    <div className="flex h-screen overflow-hidden bg-[#090a0c] text-white">
       {/* Sidebar */}

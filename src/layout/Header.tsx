@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/appStore";
+import NotificationPanel from "../components/NotificationPanel";
+import { FiBell, FiX } from "react-icons/fi";
 
 function Header() {
   const location = useLocation();
@@ -13,37 +15,7 @@ function Header() {
 
   const profileRef = useRef<HTMLDivElement>(null);
 
-  /*
-   * Close dropdown when clicking outside
-   */
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(
-          event.target as Node
-        )
-      ) {
-        setIsProfileOpen(false);
-      }
-    };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
-    };
-  }, []);
-
-  /*
-   * Get page title from URL
-   */
   const getPageTitle = () => {
     const pathname = location.pathname;
 
@@ -105,6 +77,76 @@ function Header() {
     });
   };
 
+  const notifications =
+    useAppStore(
+      (state) => state.notifications
+    );
+
+  const isNotificationPanelOpen =
+    useAppStore(
+      (state) =>
+        state.isNotificationPanelOpen
+    );
+
+  const setNotificationPanelOpen =
+    useAppStore(
+      (state) =>
+        state.setNotificationPanelOpen
+    );
+
+  const notificationToast =
+    useAppStore(
+      (state) => state.notificationToast
+    );
+
+  const clearNotificationToast =
+    useAppStore(
+      (state) =>
+        state.clearNotificationToast
+    );
+
+  const unreadCount =
+    notifications.filter(
+      (notification) =>
+        !notification.read
+    ).length;
+
+  const notificationRef =
+    useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+    const handleClickOutside = (
+      event: MouseEvent
+    ) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setNotificationPanelOpen(false);
+      }
+    };
+
+    if (isNotificationPanelOpen) {
+      document.addEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    }
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, [
+    isNotificationPanelOpen,
+    setNotificationPanelOpen,
+  ]);
+
   return (
     <header className="relative flex h-[72px] items-center justify-between border-b border-white/[0.06] bg-[#0d0f12] px-6 text-white">
       {/* Page title */}
@@ -117,28 +159,35 @@ function Header() {
       {/* Right side */}
       <div className="flex items-center gap-5">
         {/* Notification */}
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 transition hover:bg-white/[0.05] hover:text-white"
+        <div
+          ref={notificationRef}
+          className="relative"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <button
+            type="button"
+            aria-label="Notifications"
+            onClick={() =>
+              setNotificationPanelOpen(
+                !isNotificationPanelOpen
+              )
+            }
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 transition hover:bg-white/[0.05] hover:text-white"
           >
-            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
+            <FiBell size={20} />
 
-          {/* Notification dot */}
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-orange-500" />
-        </button>
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex min-h-[16px] min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                {unreadCount > 99
+                  ? "99+"
+                  : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {isNotificationPanelOpen && (
+            <NotificationPanel />
+          )}
+        </div>
 
         {/* Profile */}
         <div
@@ -186,11 +235,10 @@ function Header() {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className={`text-gray-500 transition-transform ${
-                isProfileOpen
+              className={`text-gray-500 transition-transform ${isProfileOpen
                   ? "rotate-180"
                   : ""
-              }`}
+                }`}
             >
               <path d="m6 9 6 6 6-6" />
             </svg>
@@ -302,6 +350,37 @@ function Header() {
           )}
         </div>
       </div>
+
+
+      {notificationToast &&
+        !isNotificationPanelOpen && (
+          <div className="fixed right-6 top-[88px] z-[100] w-[320px] rounded-xl border border-white/[0.08] bg-[#15181c] p-4 shadow-2xl shadow-black/40">
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                <FiBell size={17} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-white">
+                  New notification
+                </p>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  {notificationToast}
+                </p>
+              </div>
+
+              <button
+                onClick={
+                  clearNotificationToast
+                }
+                className="text-gray-600 hover:text-white"
+              >
+                <FiX size={15} />
+              </button>
+            </div>
+          </div>
+        )}
     </header>
   );
 }

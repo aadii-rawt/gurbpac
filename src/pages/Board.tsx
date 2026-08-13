@@ -6,7 +6,7 @@ import {
   useSensors,
   closestCorners,
 } from "@dnd-kit/core";
-import type {DragEndEvent} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
 
 import {
   SortableContext,
@@ -32,9 +32,10 @@ import {
 } from "react";
 
 import {
-  useAppStore,} from "../store/appStore";
+  useAppStore,
+} from "../store/appStore";
 
-import type { BoardTask,TaskStatus, TaskPriority} from "../types/task"
+import type { BoardTask, TaskStatus, TaskPriority } from "../types/task"
 
 import { useBoardTasks } from "../hooks/useBoardTasks";
 
@@ -42,23 +43,23 @@ const columns: {
   id: TaskStatus;
   title: string;
 }[] = [
-  {
-    id: "backlog",
-    title: "Backlog",
-  },
-  {
-    id: "in-progress",
-    title: "In Progress",
-  },
-  {
-    id: "review",
-    title: "Review",
-  },
-  {
-    id: "done",
-    title: "Done",
-  },
-];
+    {
+      id: "backlog",
+      title: "Backlog",
+    },
+    {
+      id: "in-progress",
+      title: "In Progress",
+    },
+    {
+      id: "review",
+      title: "Review",
+    },
+    {
+      id: "done",
+      title: "Done",
+    },
+  ];
 
 function Board() {
   const { isLoading, error } =
@@ -266,7 +267,7 @@ function Board() {
               <div className="rotate-2">
                 <TaskCard
                   task={activeTask}
-                  onClick={() => {}}
+                  onClick={() => { }}
                 />
               </div>
             ) : null}
@@ -396,11 +397,10 @@ function SortableTask({
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className={`cursor-grab ${
-        isDragging
+      className={`cursor-grab ${isDragging
           ? "opacity-30"
           : ""
-      }`}
+        }`}
     >
       <TaskCard
         task={task}
@@ -464,47 +464,62 @@ function TaskDrawer({
   task: BoardTask;
   onClose: () => void;
 }) {
-  const updateTask =
-    useAppStore(
-      (state) => state.updateTask
-    );
+  const updateTask = useAppStore(
+    (state) => state.updateTask
+  );
 
-  const deleteTask =
-    useAppStore(
-      (state) => state.deleteTask
-    );
+  const deleteTask = useAppStore(
+    (state) => state.deleteTask
+  );
 
-  const addComment =
-    useAppStore(
-      (state) => state.addComment
-    );
+  const addComment = useAppStore(
+    (state) => state.addComment
+  );
 
-  const user =
-    useAppStore(
-      (state) => state.user
-    );
+  const user = useAppStore(
+    (state) => state.user
+  );
 
-  const [title, setTitle] =
-    useState(task.title);
+  // Editable fields
+  const [title, setTitle] = useState(
+    task.title
+  );
 
   const [description, setDescription] =
     useState(task.description);
 
+  const [priority, setPriority] =
+    useState<TaskPriority>(
+      task.priority
+    );
+
+  const [assignee, setAssignee] =
+    useState(task.assignee);
+
+  const [dueDate, setDueDate] =
+    useState(task.dueDate);
+
   const [comment, setComment] =
     useState("");
 
+  // Save all changes
   const handleSave = () => {
     updateTask(task.id, {
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
+      priority,
+      assignee,
+      dueDate,
     });
+
+    onClose();
   };
 
+  // Delete
   const handleDelete = () => {
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to delete this task?"
-      );
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
 
     if (!confirmed) {
       return;
@@ -515,6 +530,7 @@ function TaskDrawer({
     onClose();
   };
 
+  // Add comment
   const handleComment = () => {
     if (!comment.trim()) {
       return;
@@ -542,7 +558,7 @@ function TaskDrawer({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-5">
           <h2 className="text-lg font-semibold">
-            Task Details
+            Edit Task
           </h2>
 
           <button
@@ -555,83 +571,117 @@ function TaskDrawer({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <label className="mb-2 block text-xs font-medium text-gray-400">
-            Title
-          </label>
+          {/* Title */}
+          <div className="mb-5">
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Title
+            </label>
 
-          <input
-            value={title}
-            onChange={(e) =>
-              setTitle(e.target.value)
-            }
-            className="mb-5 w-full rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm outline-none focus:border-blue-500"
-          />
+            <input
+              value={title}
+              onChange={(e) =>
+                setTitle(e.target.value)
+              }
+              className="w-full rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+            />
+          </div>
 
-          <label className="mb-2 block text-xs font-medium text-gray-400">
-            Description
-          </label>
+          {/* Description */}
+          <div className="mb-5">
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Description
+            </label>
 
-          <textarea
-            value={description}
-            onChange={(e) =>
-              setDescription(
-                e.target.value
-              )
-            }
-            rows={5}
-            className="mb-5 w-full resize-none rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm outline-none focus:border-blue-500"
-          />
+            <textarea
+              value={description}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
+              rows={5}
+              className="w-full resize-none rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+            />
+          </div>
 
-          {/* Metadata */}
-          <div className="mb-6 grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-white/[0.06] bg-[#15181c] p-3">
-              <p className="text-xs text-gray-500">
-                Priority
-              </p>
+          {/* Priority */}
+          <div className="mb-5">
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Priority
+            </label>
 
-              <p className="mt-1 text-sm capitalize">
-                {task.priority}
-              </p>
-            </div>
+            <select
+              value={priority}
+              onChange={(e) =>
+                setPriority(
+                  e.target.value as TaskPriority
+                )
+              }
+              className="w-full rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+            >
+              <option value="low">
+                Low
+              </option>
 
-            <div className="rounded-lg border border-white/[0.06] bg-[#15181c] p-3">
-              <p className="text-xs text-gray-500">
-                Assignee
-              </p>
+              <option value="medium">
+                Medium
+              </option>
 
-              <p className="mt-1 text-sm">
-                {task.assignee}
-              </p>
-            </div>
+              <option value="high">
+                High
+              </option>
+            </select>
+          </div>
 
-            <div className="rounded-lg border border-white/[0.06] bg-[#15181c] p-3">
-              <p className="text-xs text-gray-500">
-                Due Date
-              </p>
+          {/* Assignee */}
+          <div className="mb-5">
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Assignee
+            </label>
 
-              <p className="mt-1 text-sm">
-                {task.dueDate}
-              </p>
-            </div>
+            <select
+              value={assignee}
+              onChange={(e) =>
+                setAssignee(e.target.value)
+              }
+              className="w-full rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+            >
+              <option value="Alex">
+                Alex
+              </option>
 
-            <div className="rounded-lg border border-white/[0.06] bg-[#15181c] p-3">
-              <p className="text-xs text-gray-500">
-                Status
-              </p>
+              <option value="Sarah">
+                Sarah
+              </option>
 
-              <p className="mt-1 text-sm capitalize">
-                {task.status.replace(
-                  "-",
-                  " "
-                )}
-              </p>
-            </div>
+              <option value="John">
+                John
+              </option>
+
+              <option value="Emily">
+                Emily
+              </option>
+            </select>
+          </div>
+
+          {/* Due Date */}
+          <div className="mb-6">
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Due Date
+            </label>
+
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) =>
+                setDueDate(e.target.value)
+              }
+              className="w-full rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+            />
           </div>
 
           {/* Save */}
           <button
             onClick={handleSave}
-            className="mb-8 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium hover:bg-blue-500"
+            className="mb-8 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium hover:bg-blue-500"
           >
             Save Changes
           </button>
@@ -639,9 +689,7 @@ function TaskDrawer({
           {/* Comments */}
           <div className="border-t border-white/[0.06] pt-6">
             <div className="mb-4 flex items-center gap-2">
-              <FiMessageSquare
-                size={16}
-              />
+              <FiMessageSquare size={16} />
 
               <h3 className="text-sm font-semibold">
                 Comments
@@ -675,14 +723,10 @@ function TaskDrawer({
               <input
                 value={comment}
                 onChange={(e) =>
-                  setComment(
-                    e.target.value
-                  )
+                  setComment(e.target.value)
                 }
                 onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter"
-                  ) {
+                  if (e.key === "Enter") {
                     handleComment();
                   }
                 }}
@@ -715,7 +759,6 @@ function TaskDrawer({
     </div>
   );
 }
-
 function PriorityBadge({
   priority,
 }: {
@@ -753,6 +796,8 @@ function CreateTaskDrawer({
 
   const [title, setTitle] =
     useState("");
+  const [description, setDescription] =
+    useState("");
 
   const [priority, setPriority] =
     useState<TaskPriority>("medium");
@@ -771,9 +816,7 @@ function CreateTaskDrawer({
     addTask({
       title: title.trim(),
 
-      description:
-        "New sprint task.",
-
+      description: description.trim(),
       status: "backlog",
 
       priority,
@@ -825,6 +868,21 @@ function CreateTaskDrawer({
               className="w-full rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm outline-none focus:border-blue-500"
             />
           </div>
+          <div>
+  <label className="mb-2 block text-xs text-gray-400">
+    Description
+  </label>
+
+  <textarea
+    value={description}
+    onChange={(e) =>
+      setDescription(e.target.value)
+    }
+    placeholder="Describe the task..."
+    rows={5}
+    className="w-full resize-none rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2.5 text-sm text-white outline-none placeholder:text-gray-600 focus:border-blue-500"
+  />
+</div>
 
           <div>
             <label className="mb-2 block text-xs text-gray-400">

@@ -35,6 +35,15 @@ export type BoardTask = {
   priority: TaskPriority;
   assignee: string;
   dueDate: string;
+  completedAt?: string;
   comments: Comment[];
 };
 
+export type Notification = {
+  id: string;
+  postId: number;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+};

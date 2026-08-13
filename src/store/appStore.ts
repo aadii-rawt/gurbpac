@@ -48,34 +48,65 @@ type AppStore = {
 
   tasks: BoardTask[];
 
-setTasks: (tasks: BoardTask[]) => void;
+  setTasks: (tasks: BoardTask[]) => void;
 
-addTask: (
-  task: Omit<BoardTask, "id" | "comments">
-) => void;
+  addTask: (
+    task: Omit<BoardTask, "id" | "comments">
+  ) => void;
 
-updateTask: (
-  id: string,
-  updates: Partial<BoardTask>
-) => void;
+  updateTask: (
+    id: string,
+    updates: Partial<BoardTask>
+  ) => void;
 
-deleteTask: (id: string) => void;
+  deleteTask: (id: string) => void;
 
-moveTask: (
-  activeId: string,
-  overId: string
-) => void;
+  moveTask: (
+    activeId: string,
+    overId: string
+  ) => void;
 
-moveTaskToColumn: (
-  taskId: string,
-  status: TaskStatus
-) => void;
+  moveTaskToColumn: (
+    taskId: string,
+    status: TaskStatus
+  ) => void;
 
-addComment: (
-  taskId: string,
-  comment: string,
-  author: string
-) => void;
+  addComment: (
+    taskId: string,
+    comment: string,
+    author: string
+  ) => void;
+
+  // notification type
+
+  notifications: Notification[];
+
+  seenPostIds: number[];
+
+  isNotificationPanelOpen: boolean;
+
+  notificationToast: string | null;
+
+  addNotifications: (
+    notifications: Notification[]
+  ) => void;
+
+  markNotificationAsRead: (
+    id: string
+  ) => void;
+
+  markAllNotificationsAsRead: () => void;
+
+  setNotificationPanelOpen: (
+    open: boolean
+  ) => void;
+  setSeenPostIds: (
+    ids: number[]
+  ) => void;
+
+  clearNotificationToast: () => void;
+
+  simulateNotification: () => void;
 };
 
 
@@ -243,156 +274,320 @@ export const useAppStore = create<AppStore>(
 
     // task
     tasks: JSON.parse(
-  localStorage.getItem("sprintdesk_tasks") || "[]"
-),
+      localStorage.getItem("sprintdesk_tasks") || "[]"
+    ),
 
-setTasks: (tasks) => {
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
+    setTasks: (tasks) => {
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
 
-  set({ tasks });
-},
+      set({ tasks });
+    },
 
-addTask: (task) => {
-  const newTask: BoardTask = {
-    ...task,
-    id: crypto.randomUUID(),
-    comments: [],
-  };
+    addTask: (task) => {
+      const newTask: BoardTask = {
+        ...task,
+        id: crypto.randomUUID(),
+        comments: [],
+      };
 
-  const tasks = [
-    ...get().tasks,
-    newTask,
-  ];
+      const tasks = [
+        ...get().tasks,
+        newTask,
+      ];
 
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
 
-  set({ tasks });
-},
+      set({ tasks });
+    },
 
-updateTask: (id, updates) => {
-  const tasks = get().tasks.map((task) =>
-    task.id === id
-      ? {
-          ...task,
-          ...updates,
+    updateTask: (id, updates) => {
+      const tasks = get().tasks.map((task) =>
+        task.id === id
+          ? {
+            ...task,
+            ...updates,
+          }
+          : task
+      );
+
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
+
+      set({ tasks });
+    },
+
+    deleteTask: (id) => {
+      const tasks = get().tasks.filter(
+        (task) => task.id !== id
+      );
+
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
+
+      set({ tasks });
+    },
+
+    moveTask: (activeId, overId) => {
+      const tasks = [...get().tasks];
+
+      const activeIndex = tasks.findIndex(
+        (task) => task.id === activeId
+      );
+
+      const overIndex = tasks.findIndex(
+        (task) => task.id === overId
+      );
+
+      if (
+        activeIndex === -1 ||
+        overIndex === -1
+      ) {
+        return;
+      }
+
+      const [movedTask] = tasks.splice(
+        activeIndex,
+        1
+      );
+
+      tasks.splice(
+        overIndex,
+        0,
+        movedTask
+      );
+
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
+
+      set({ tasks });
+    },
+
+    moveTaskToColumn: (taskId, status) => {
+      const tasks = get().tasks.map((task) => {
+        if (task.id !== taskId) {
+          return task;
         }
-      : task
-  );
 
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
-
-  set({ tasks });
-},
-
-deleteTask: (id) => {
-  const tasks = get().tasks.filter(
-    (task) => task.id !== id
-  );
-
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
-
-  set({ tasks });
-},
-
-moveTask: (activeId, overId) => {
-  const tasks = [...get().tasks];
-
-  const activeIndex = tasks.findIndex(
-    (task) => task.id === activeId
-  );
-
-  const overIndex = tasks.findIndex(
-    (task) => task.id === overId
-  );
-
-  if (
-    activeIndex === -1 ||
-    overIndex === -1
-  ) {
-    return;
-  }
-
-  const [movedTask] = tasks.splice(
-    activeIndex,
-    1
-  );
-
-  tasks.splice(
-    overIndex,
-    0,
-    movedTask
-  );
-
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
-
-  set({ tasks });
-},
-
-moveTaskToColumn: (taskId, status) => {
-  const tasks = get().tasks.map((task) =>
-    task.id === taskId
-      ? {
+        return {
           ...task,
           status,
+
+          // Record completion time
+          completedAt:
+            status === "done"
+              ? task.completedAt ||
+              new Date().toISOString()
+              : undefined,
+        };
+      });
+
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
+
+      set({ tasks });
+    },
+
+    addComment: (
+      taskId,
+      comment,
+      author
+    ) => {
+      const tasks = get().tasks.map((task) => {
+        if (task.id !== taskId) {
+          return task;
         }
-      : task
-  );
 
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
+        return {
+          ...task,
 
-  set({ tasks });
-},
+          comments: [
+            ...task.comments,
+            {
+              id: crypto.randomUUID(),
+              text: comment,
+              author,
+              createdAt:
+                new Date().toISOString(),
+            },
+          ],
+        };
+      });
 
-addComment: (
-  taskId,
-  comment,
-  author
-) => {
-  const tasks = get().tasks.map((task) => {
-    if (task.id !== taskId) {
-      return task;
-    }
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
 
-    return {
-      ...task,
+      set({ tasks });
+    },
 
-      comments: [
-        ...task.comments,
-        {
-          id: crypto.randomUUID(),
-          text: comment,
-          author,
-          createdAt:
-            new Date().toISOString(),
-        },
-      ],
-    };
-  });
 
-  localStorage.setItem(
-    "sprintdesk_tasks",
-    JSON.stringify(tasks)
-  );
+    // notification 
+    notifications: JSON.parse(
+      localStorage.getItem(
+        "sprintdesk_notifications"
+      ) || "[]"
+    ),
 
-  set({ tasks });
-},
+    seenPostIds: JSON.parse(
+      localStorage.getItem(
+        "sprintdesk_seen_post_ids"
+      ) || "[]"
+    ),
+
+    isNotificationPanelOpen: false,
+
+    notificationToast: null,
+
+    setSeenPostIds: (ids) => {
+      localStorage.setItem(
+        "sprintdesk_seen_post_ids",
+        JSON.stringify(ids)
+      );
+
+      set({
+        seenPostIds: ids,
+      });
+    },
+
+    addNotifications: (
+      newNotifications
+    ) => {
+      const existing =
+        get().notifications;
+
+      const notifications = [
+        ...newNotifications,
+        ...existing,
+      ].slice(0, 20);
+
+      localStorage.setItem(
+        "sprintdesk_notifications",
+        JSON.stringify(notifications)
+      );
+
+      set({
+        notifications,
+
+        notificationToast:
+          !get()
+            .isNotificationPanelOpen &&
+            newNotifications.length > 0
+            ? `${newNotifications.length} new notification${newNotifications.length > 1
+              ? "s"
+              : ""
+            }`
+            : null,
+      });
+    },
+
+    markNotificationAsRead: (id) => {
+      const notifications =
+        get().notifications.map(
+          (notification) =>
+            notification.id === id
+              ? {
+                ...notification,
+                read: true,
+              }
+              : notification
+        );
+
+      localStorage.setItem(
+        "sprintdesk_notifications",
+        JSON.stringify(notifications)
+      );
+
+      set({
+        notifications,
+      });
+    },
+
+    markAllNotificationsAsRead: () => {
+      const notifications =
+        get().notifications.map(
+          (notification) => ({
+            ...notification,
+            read: true,
+          })
+        );
+
+      localStorage.setItem(
+        "sprintdesk_notifications",
+        JSON.stringify(notifications)
+      );
+
+      set({
+        notifications,
+      });
+    },
+
+    setNotificationPanelOpen: (
+      open
+    ) => {
+      set({
+        isNotificationPanelOpen: open,
+
+        notificationToast: open
+          ? null
+          : get().notificationToast,
+      });
+    },
+
+    clearNotificationToast: () => {
+      set({
+        notificationToast: null,
+      });
+    },
+
+    simulateNotification: () => {
+      const seenIds =
+        get().seenPostIds;
+
+      const nextId =
+        Math.max(0, ...seenIds) + 1;
+
+      const notification: Notification = {
+        id: `post-${nextId}`,
+        postId: nextId,
+        title: "New post received",
+        message: `Post ${nextId} has arrived.`,
+        read: false,
+        createdAt:
+          new Date().toISOString(),
+      };
+
+      const newSeenIds = [
+        ...seenIds,
+        nextId,
+      ];
+
+      localStorage.setItem(
+        "sprintdesk_seen_post_ids",
+        JSON.stringify(newSeenIds)
+      );
+
+      set({
+        seenPostIds: newSeenIds,
+      });
+
+      get().addNotifications([
+        notification,
+      ]);
+    },
   })
 );
