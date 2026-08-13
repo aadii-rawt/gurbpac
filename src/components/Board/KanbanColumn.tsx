@@ -34,9 +34,6 @@ const KanbanColumn = React.memo(({
           </span>
         </div>
 
-        <button className="text-gray-600 hover:text-white">
-          <FiMoreHorizontal size={18} />
-        </button>
       </div>
 
       {/* Droppable column */}

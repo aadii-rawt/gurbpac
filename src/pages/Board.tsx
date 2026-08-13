@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 
 import {
+  useMemo,
   useState,
 } from "react";
 
@@ -21,7 +22,8 @@ import {
   useAppStore,
 } from "../store/appStore";
 
-import type { BoardTask, TaskStatus,  } from "../types/task"
+
+import type { BoardTask, TaskStatus, TaskPriority } from "../types/task"
 
 import { useBoardTasks } from "../hooks/useBoardTasks";
 import KanbanColumn from "../components/Board/KanbanColumn";
@@ -34,6 +36,13 @@ import { columns } from "../utils/utils";
 function Board() {
   const { isLoading, error } =
     useBoardTasks();
+
+  const [priorityFilter, setPriorityFilter] =
+    useState<TaskPriority | "all">("all");
+
+  const [assigneeFilter, setAssigneeFilter] =
+    useState<string>("all");
+
 
   const tasks = useAppStore(
     (state) => state.tasks
@@ -65,6 +74,35 @@ function Board() {
       },
     })
   );
+
+  const assignees = useMemo(() => {
+    return Array.from(
+      new Set(
+        tasks.map((task) => task.assignee)
+      )
+    );
+  }, [tasks]);
+
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const matchesPriority =
+        priorityFilter === "all" ||
+        task.priority === priorityFilter;
+
+      const matchesAssignee =
+        assigneeFilter === "all" ||
+        task.assignee === assigneeFilter;
+
+      return (
+        matchesPriority &&
+        matchesAssignee
+      );
+    });
+  }, [
+    tasks,
+    priorityFilter,
+    assigneeFilter,
+  ]);
 
   if (isLoading && tasks.length === 0) {
     return (
@@ -150,9 +188,6 @@ function Board() {
       return;
     }
 
-    /*
-     * Dropped onto a column.
-     */
     const targetColumn =
       columns.find(
         (column) =>
@@ -183,16 +218,86 @@ function Board() {
             </p>
           </div>
 
-          <button
-            onClick={() =>
-              setIsCreateOpen(true)
-            }
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium transition hover:bg-blue-500"
-          >
-            <FiPlus size={17} />
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              {/* Priority */}
+              <select
+                value={priorityFilter}
+                onChange={(e) =>
+                  setPriorityFilter(
+                    e.target.value as
+                    | TaskPriority
+                    | "all"
+                  )
+                }
+                className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
+                aria-label="Filter by priority"
+              >
+                <option value="all">
+                  All Priorities
+                </option>
 
-            Create Task
-          </button>
+                <option value="high">
+                  High
+                </option>
+
+                <option value="medium">
+                  Medium
+                </option>
+
+                <option value="low">
+                  Low
+                </option>
+              </select>
+
+              {/* Assignee */}
+              <select
+                value={assigneeFilter}
+                onChange={(e) =>
+                  setAssigneeFilter(e.target.value)
+                }
+                className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
+                aria-label="Filter by assignee"
+              >
+                <option value="all">
+                  All Assignees
+                </option>
+
+                {assignees.map((assignee) => (
+                  <option
+                    key={assignee}
+                    value={assignee}
+                  >
+                    {assignee}
+                  </option>
+                ))}
+              </select>
+
+              {/* Clear */}
+              {(priorityFilter !== "all" ||
+                assigneeFilter !== "all") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPriorityFilter("all");
+                      setAssigneeFilter("all");
+                    }}
+                    className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-white/[0.05] hover:text-white"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+            <button
+              onClick={() =>
+                setIsCreateOpen(true)
+              }
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium transition hover:bg-blue-500"
+            >
+              <FiPlus size={17} />
+
+              Create Task
+            </button>
+            </div>
+
         </div>
 
         {/* Kanban */}
@@ -209,27 +314,20 @@ function Board() {
           }
         >
           <div className="grid min-w-[1000px] grid-cols-4 gap-5">
-            {columns.map(
-              (column) => {
-                const columnTasks =
-                  tasks.filter(
-                    (task) =>
-                      task.status ===
-                      column.id
-                  );
+            {columns.map((column) => {
+              const columnTasks = filteredTasks.filter(
+                (task) => task.status === column.id
+              );
 
-                return (
-                  <KanbanColumn
-                    key={column.id}
-                    column={column}
-                    tasks={columnTasks}
-                    onTaskClick={
-                      setSelectedTask
-                    }
-                  />
-                );
-              }
-            )}
+              return (
+                <KanbanColumn
+                  key={column.id}
+                  column={column}
+                  tasks={columnTasks}
+                  onTaskClick={setSelectedTask}
+                />
+              );
+            })}
           </div>
 
           <DragOverlay>

@@ -2,13 +2,13 @@ import { lazy, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { useAppStore } from "./store/appStore";
-
-const Layout = lazy(() => import("./layout/Layout"));
+import SuspenseWrapper from './components/Suspense';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './layout/Layout';
+import PublicRoute from './components/PublicRoute';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Board = lazy(() => import('./pages/Board'));
 const Analytics = lazy(() => import('./pages/Analytics'));
-const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
-const PublicRoute = lazy(() => import('./components/PublicRoute'));
 const Login = lazy(() => import('./pages/Login'));
 
 const App = () => {
@@ -28,7 +28,7 @@ const App = () => {
 
   if (isInitializing) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center text-white bg-black">
         Checking session...
       </div>
     );
@@ -41,22 +41,22 @@ const App = () => {
       children: [
         {
           path: "/",
-          element: <Dashboard />
+          element:<SuspenseWrapper>  <Dashboard /></SuspenseWrapper>
         },
         {
           path: "/board",
-          element: <Board />
+          element: <SuspenseWrapper><Board /></SuspenseWrapper>
 
         },
         {
           path: "/analytics",
-          element: <Analytics />
+          element: <SuspenseWrapper><Analytics /></SuspenseWrapper>
         }
       ]
     },
     {
       path: "/login",
-      element: <PublicRoute > <Login /></PublicRoute>
+      element:<SuspenseWrapper><PublicRoute > <Login /></PublicRoute></SuspenseWrapper> 
     }
   ]);
 

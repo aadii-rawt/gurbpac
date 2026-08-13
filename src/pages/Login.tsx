@@ -3,20 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import { useAppStore } from "../store/appStore";
+import type { LoginResponse, User } from "../types/user";
 
-type User = {
-  id: number;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  image: string;
-};
-
-type LoginResponse = User & {
-  accessToken: string;
-  refreshToken: string;
-};
 
 function Login() {
   const navigate = useNavigate();
