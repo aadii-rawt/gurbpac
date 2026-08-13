@@ -77,6 +77,10 @@ type AppStore = {
     author: string
   ) => void;
 
+  undoMove: (() => void) | null;
+setUndoMove: (fn: (() => void) | null) => void;
+  
+
   // notification type
 
   notifications: Notification[];
@@ -263,6 +267,12 @@ export const useAppStore = create<AppStore>(
       localStorage.removeItem(
         "refreshToken"
       );
+      localStorage.removeItem(
+        "sprintdesk_seen_post_ids"
+      );
+      localStorage.removeItem(
+        "sprintdesk_tasks"
+      );
 
       set({
         user: null,
@@ -434,6 +444,12 @@ export const useAppStore = create<AppStore>(
 
       set({ tasks });
     },
+    undoMove: null,
+    setUndoMove: (fn) => {
+  set({
+    undoMove: fn,
+  });
+},
 
 
     // notification 

@@ -31,6 +31,7 @@ import TaskCard from "../components/Board/TaskCard";
 import TaskDrawer from "../components/Board/TaskDrawer";
 import CreateTaskDrawer from "../components/Board/CreateTaskDrawer";
 import { columns } from "../utils/utils";
+import UndoToast from "../components/UI/UndoToast";
 
 
 function Board() {
@@ -361,6 +362,8 @@ function Board() {
           }
         />
       )}
+
+       <UndoToast />
     </>
   );
 }
