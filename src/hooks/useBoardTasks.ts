@@ -62,9 +62,6 @@ export function useBoardTasks() {
     staleTime: Infinity,
   });
 
-  /*
-   * Convert API tasks into our board tasks.
-   */
   if (
     query.data &&
     tasks.length === 0

@@ -15,6 +15,7 @@ import {
 import StatCard from "../components/StatCard";
 import ProgressItem from "../components/ProgressItem";
 import StatusBadge from "../components/StatusBadge";
+import DashboardSkeleton from "../components/loading/DashboardSkeleton";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -53,14 +54,23 @@ function Dashboard() {
     totalTasks === 0
       ? 0
       : Math.round(
-          (completedTasks /
-            totalTasks) *
-            100
-        );
+        (completedTasks /
+          totalTasks) *
+        100
+      );
 
   const recentTasks = [...tasks]
     .slice(-5)
     .reverse();
+
+  const isTasksLoading = useAppStore(
+    (state) => state.isTasksLoading
+  );
+
+  console.log("isTasksLoading", isTasksLoading);
+  // if (isTasksLoading) {
+  //   return <DashboardSkeleton />;
+  // }
 
   return (
     <div

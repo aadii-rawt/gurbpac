@@ -35,6 +35,7 @@ import TaskDrawer from "../components/Board/TaskDrawer";
 import CreateTaskDrawer from "../components/Board/CreateTaskDrawer";
 import { columns } from "../utils/utils";
 import UndoToast from "../components/UI/UndoToast";
+import BoardSkeleton from "../components/loading/BoardSkeleton";
 
 function Board() {
   const { isLoading, error } =
@@ -123,25 +124,7 @@ function Board() {
     isLoading &&
     tasks.length === 0
   ) {
-    return (
-      <div
-        className="
-          flex
-          h-full
-          items-center
-          justify-center
-          bg-gray-50
-          text-gray-500
-          transition-colors
-          duration-200
-
-          dark:bg-[#090a0c]
-          dark:text-gray-400
-        "
-      >
-        Loading tasks...
-      </div>
-    );
+    return <BoardSkeleton />;
   }
 
   if (
