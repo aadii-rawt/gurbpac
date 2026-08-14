@@ -62,8 +62,8 @@ type AppStore = {
   deleteTask: (id: string) => void;
 
   moveTask: (
-    activeId: string,
-    overId: string
+    taskId: string,
+    status: string
   ) => void;
 
   moveTaskToColumn: (
@@ -78,8 +78,8 @@ type AppStore = {
   ) => void;
 
   undoMove: (() => void) | null;
-setUndoMove: (fn: (() => void) | null) => void;
-  
+  setUndoMove: (fn: (() => void) | null) => void;
+  restoreTasks: (tasks: BoardTask[]) => void;
 
   // notification type
 
@@ -347,43 +347,36 @@ export const useAppStore = create<AppStore>(
       set({ tasks });
     },
 
-    moveTask: (activeId, overId) => {
-      const tasks = [...get().tasks];
+    moveTask: (
+      taskId: string,
+      status: TaskStatus
+    ) => {
+      const tasks: BoardTask[] =
+        get().tasks.map((task) => {
+          if (task.id !== taskId) {
+            return task;
+          }
 
-      const activeIndex = tasks.findIndex(
-        (task) => task.id === activeId
-      );
-
-      const overIndex = tasks.findIndex(
-        (task) => task.id === overId
-      );
-
-      if (
-        activeIndex === -1 ||
-        overIndex === -1
-      ) {
-        return;
-      }
-
-      const [movedTask] = tasks.splice(
-        activeIndex,
-        1
-      );
-
-      tasks.splice(
-        overIndex,
-        0,
-        movedTask
-      );
+          return {
+            ...task,
+            status,
+            completedAt:
+              status === "done"
+                ? task.completedAt ||
+                new Date().toISOString()
+                : undefined,
+          };
+        });
 
       localStorage.setItem(
         "sprintdesk_tasks",
         JSON.stringify(tasks)
       );
 
-      set({ tasks });
+      set({
+        tasks,
+      });
     },
-
     moveTaskToColumn: (taskId, status) => {
       const tasks = get().tasks.map((task) => {
         if (task.id !== taskId) {
@@ -444,13 +437,25 @@ export const useAppStore = create<AppStore>(
 
       set({ tasks });
     },
-    undoMove: null,
-    setUndoMove: (fn) => {
-  set({
-    undoMove: fn,
-  });
-},
 
+    undoMove: null,
+
+    setUndoMove: (fn) => {
+      set({
+        undoMove: fn,
+      });
+    },
+
+    restoreTasks: (tasks) => {
+      localStorage.setItem(
+        "sprintdesk_tasks",
+        JSON.stringify(tasks)
+      );
+
+      set({
+        tasks: [...tasks],
+      });
+    },
 
     // notification 
     notifications: JSON.parse(

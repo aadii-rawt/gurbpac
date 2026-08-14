@@ -48,6 +48,10 @@ function Board() {
   const tasks = useAppStore(
     (state) => state.tasks
   );
+  const {
+    setUndoMove,
+    restoreTasks,
+  } = useAppStore();
 
   const moveTask = useAppStore(
     (state) => state.moveTask
@@ -132,74 +136,61 @@ function Board() {
     setActiveTask(task || null);
   };
 
-  const handleDragEnd = (
-    event: DragEndEvent
-  ) => {
-    setActiveTask(null);
-
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!over) {
-      return;
-    }
+    if (!over) return;
 
-    const activeId =
-      String(active.id);
-
-    const overId =
-      String(over.id);
-
-    if (activeId === overId) {
-      return;
-    }
+    const activeId = String(active.id);
+    const overId = String(over.id);
 
     const activeTask = tasks.find(
-      (task) =>
-        task.id === activeId
+      (task) => String(task.id) === activeId
     );
 
-    const overTask = tasks.find(
-      (task) =>
-        task.id === overId
+    if (!activeTask) return;
+
+    // Find destination column
+    let destinationColumn = columns.find(
+      (column) => column.id === overId
     );
 
-    if (!activeTask) {
-      return;
-    }
+    // If dropped on another task,
+    // get that task's column
+    if (!destinationColumn) {
+      const overTask = tasks.find(
+        (task) => String(task.id) === overId
+      );
 
-    /*
-     * Dropped onto another task.
-     */
-    if (overTask) {
-      if (
-        activeTask.status !==
-        overTask.status
-      ) {
-        moveTaskToColumn(
-          activeId,
-          overTask.status
+      if (overTask) {
+        destinationColumn = columns.find(
+          (column) =>
+            column.id === overTask.status
         );
       }
+    }
 
-      moveTask(
-        activeId,
-        overId
-      );
+    if (!destinationColumn) return;
+
+    const newStatus = destinationColumn.id;
+
+    // --------------------------------
+    // SAME COLUMN
+    // --------------------------------
+    if (activeTask.status === newStatus) {
+      // Your existing reorder logic here
 
       return;
     }
 
-    const targetColumn =
-      columns.find(
-        (column) =>
-          column.id === overId
-      );
+    const previousTasks = [...tasks];
 
-    if (targetColumn) {
-      moveTaskToColumn(
-        activeId,
-        targetColumn.id
-      );
+    moveTask(activeId, destinationColumn.id);
+
+    if (activeTask.status !== destinationColumn.id) {
+      setUndoMove(() => {
+        restoreTasks(previousTasks);
+      });
     }
   };
 
@@ -219,74 +210,74 @@ function Board() {
             </p>
           </div>
 
-            <div className="mb-5 flex flex-wrap items-center gap-3">
-              {/* Priority */}
-              <select
-                value={priorityFilter}
-                onChange={(e) =>
-                  setPriorityFilter(
-                    e.target.value as
-                    | TaskPriority
-                    | "all"
-                  )
-                }
-                className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
-                aria-label="Filter by priority"
-              >
-                <option value="all">
-                  All Priorities
+          <div className="mb-5 flex flex-wrap items-center gap-3">
+            {/* Priority */}
+            <select
+              value={priorityFilter}
+              onChange={(e) =>
+                setPriorityFilter(
+                  e.target.value as
+                  | TaskPriority
+                  | "all"
+                )
+              }
+              className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
+              aria-label="Filter by priority"
+            >
+              <option value="all">
+                All Priorities
+              </option>
+
+              <option value="high">
+                High
+              </option>
+
+              <option value="medium">
+                Medium
+              </option>
+
+              <option value="low">
+                Low
+              </option>
+            </select>
+
+            {/* Assignee */}
+            <select
+              value={assigneeFilter}
+              onChange={(e) =>
+                setAssigneeFilter(e.target.value)
+              }
+              className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
+              aria-label="Filter by assignee"
+            >
+              <option value="all">
+                All Assignees
+              </option>
+
+              {assignees.map((assignee) => (
+                <option
+                  key={assignee}
+                  value={assignee}
+                >
+                  {assignee}
                 </option>
+              ))}
+            </select>
 
-                <option value="high">
-                  High
-                </option>
-
-                <option value="medium">
-                  Medium
-                </option>
-
-                <option value="low">
-                  Low
-                </option>
-              </select>
-
-              {/* Assignee */}
-              <select
-                value={assigneeFilter}
-                onChange={(e) =>
-                  setAssigneeFilter(e.target.value)
-                }
-                className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
-                aria-label="Filter by assignee"
-              >
-                <option value="all">
-                  All Assignees
-                </option>
-
-                {assignees.map((assignee) => (
-                  <option
-                    key={assignee}
-                    value={assignee}
-                  >
-                    {assignee}
-                  </option>
-                ))}
-              </select>
-
-              {/* Clear */}
-              {(priorityFilter !== "all" ||
-                assigneeFilter !== "all") && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPriorityFilter("all");
-                      setAssigneeFilter("all");
-                    }}
-                    className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-white/[0.05] hover:text-white"
-                  >
-                    Clear Filters
-                  </button>
-                )}
+            {/* Clear */}
+            {(priorityFilter !== "all" ||
+              assigneeFilter !== "all") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPriorityFilter("all");
+                    setAssigneeFilter("all");
+                  }}
+                  className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-white/[0.05] hover:text-white"
+                >
+                  Clear Filters
+                </button>
+              )}
             <button
               onClick={() =>
                 setIsCreateOpen(true)
@@ -297,7 +288,7 @@ function Board() {
 
               Create Task
             </button>
-            </div>
+          </div>
 
         </div>
 
@@ -363,7 +354,7 @@ function Board() {
         />
       )}
 
-       <UndoToast />
+      <UndoToast />
     </>
   );
 }
