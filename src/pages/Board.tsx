@@ -6,8 +6,8 @@ import {
   useSensors,
   closestCorners,
 } from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
 
+import type { DragEndEvent } from "@dnd-kit/core";
 
 import {
   FiPlus,
@@ -22,8 +22,11 @@ import {
   useAppStore,
 } from "../store/appStore";
 
-
-import type { BoardTask, TaskStatus, TaskPriority } from "../types/task"
+import type {
+  BoardTask,
+  TaskStatus,
+  TaskPriority,
+} from "../types/task";
 
 import { useBoardTasks } from "../hooks/useBoardTasks";
 import KanbanColumn from "../components/Board/KanbanColumn";
@@ -33,21 +36,26 @@ import CreateTaskDrawer from "../components/Board/CreateTaskDrawer";
 import { columns } from "../utils/utils";
 import UndoToast from "../components/UI/UndoToast";
 
-
 function Board() {
   const { isLoading, error } =
     useBoardTasks();
 
-  const [priorityFilter, setPriorityFilter] =
-    useState<TaskPriority | "all">("all");
+  const [
+    priorityFilter,
+    setPriorityFilter,
+  ] = useState<TaskPriority | "all">(
+    "all"
+  );
 
-  const [assigneeFilter, setAssigneeFilter] =
-    useState<string>("all");
-
+  const [
+    assigneeFilter,
+    setAssigneeFilter,
+  ] = useState<string>("all");
 
   const tasks = useAppStore(
     (state) => state.tasks
   );
+
   const {
     setUndoMove,
     restoreTasks,
@@ -57,20 +65,20 @@ function Board() {
     (state) => state.moveTask
   );
 
-  const moveTaskToColumn =
-    useAppStore(
-      (state) =>
-        state.moveTaskToColumn
-    );
+  const [
+    selectedTask,
+    setSelectedTask,
+  ] = useState<BoardTask | null>(null);
 
-  const [selectedTask, setSelectedTask] =
-    useState<BoardTask | null>(null);
+  const [
+    isCreateOpen,
+    setIsCreateOpen,
+  ] = useState(false);
 
-  const [isCreateOpen, setIsCreateOpen] =
-    useState(false);
-
-  const [activeTask, setActiveTask] =
-    useState<BoardTask | null>(null);
+  const [
+    activeTask,
+    setActiveTask,
+  ] = useState<BoardTask | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -83,7 +91,9 @@ function Board() {
   const assignees = useMemo(() => {
     return Array.from(
       new Set(
-        tasks.map((task) => task.assignee)
+        tasks.map(
+          (task) => task.assignee
+        )
       )
     );
   }, [tasks]);
@@ -109,17 +119,51 @@ function Board() {
     assigneeFilter,
   ]);
 
-  if (isLoading && tasks.length === 0) {
+  if (
+    isLoading &&
+    tasks.length === 0
+  ) {
     return (
-      <div className="flex h-full items-center justify-center bg-[#090a0c] text-gray-400">
+      <div
+        className="
+          flex
+          h-full
+          items-center
+          justify-center
+          bg-gray-50
+          text-gray-500
+          transition-colors
+          duration-200
+
+          dark:bg-[#090a0c]
+          dark:text-gray-400
+        "
+      >
         Loading tasks...
       </div>
     );
   }
 
-  if (error && tasks.length === 0) {
+  if (
+    error &&
+    tasks.length === 0
+  ) {
     return (
-      <div className="flex h-full items-center justify-center bg-[#090a0c] text-red-400">
+      <div
+        className="
+          flex
+          h-full
+          items-center
+          justify-center
+          bg-gray-50
+          text-red-500
+          transition-colors
+          duration-200
+
+          dark:bg-[#090a0c]
+          dark:text-red-400
+        "
+      >
         Failed to load tasks.
       </div>
     );
@@ -133,95 +177,175 @@ function Board() {
         task.id === event.active.id
     );
 
-    setActiveTask(task || null);
+    setActiveTask(
+      task || null
+    );
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = (
+    event: DragEndEvent
+  ) => {
+    const {
+      active,
+      over,
+    } = event;
 
     if (!over) return;
 
-    const activeId = String(active.id);
-    const overId = String(over.id);
+    const activeId =
+      String(active.id);
 
-    const activeTask = tasks.find(
-      (task) => String(task.id) === activeId
-    );
+    const overId =
+      String(over.id);
+
+    const activeTask =
+      tasks.find(
+        (task) =>
+          String(task.id) ===
+          activeId
+      );
 
     if (!activeTask) return;
 
-    // Find destination column
-    let destinationColumn = columns.find(
-      (column) => column.id === overId
-    );
-
-    // If dropped on another task,
-    // get that task's column
-    if (!destinationColumn) {
-      const overTask = tasks.find(
-        (task) => String(task.id) === overId
+    let destinationColumn =
+      columns.find(
+        (column) =>
+          column.id === overId
       );
 
-      if (overTask) {
-        destinationColumn = columns.find(
-          (column) =>
-            column.id === overTask.status
+    if (!destinationColumn) {
+      const overTask =
+        tasks.find(
+          (task) =>
+            String(task.id) ===
+            overId
         );
+
+      if (overTask) {
+        destinationColumn =
+          columns.find(
+            (column) =>
+              column.id ===
+              overTask.status
+          );
       }
     }
 
     if (!destinationColumn) return;
 
-    const newStatus = destinationColumn.id;
+    const newStatus =
+      destinationColumn.id;
 
-    // --------------------------------
-    // SAME COLUMN
-    // --------------------------------
-    if (activeTask.status === newStatus) {
-      // Your existing reorder logic here
-
+    if (
+      activeTask.status ===
+      newStatus
+    ) {
       return;
     }
 
-    const previousTasks = [...tasks];
+    const previousTasks =
+      [...tasks];
 
-    moveTask(activeId, destinationColumn.id);
+    moveTask(
+      activeId,
+      destinationColumn.id
+    );
 
-    if (activeTask.status !== destinationColumn.id) {
+    if (
+      activeTask.status !==
+      destinationColumn.id
+    ) {
       setUndoMove(() => {
-        restoreTasks(previousTasks);
+        restoreTasks(
+          previousTasks
+        );
       });
     }
   };
 
   return (
     <>
-      <div className="h-full overflow-auto bg-[#090a0c] p-6 text-white">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+      <div
+        className="
+          h-full
+          overflow-auto
+          bg-gray-50
+          p-6
+          text-gray-900
+          transition-colors
+          duration-200
+
+          dark:bg-[#090a0c]
+          dark:text-white
+        "
+      >
+        <div
+          className="
+            mb-6
+            flex
+            items-center
+            justify-between
+          "
+        >
           <div>
-            <h1 className="text-xl font-semibold">
+            <h1
+              className="
+                text-xl
+                font-semibold
+                text-gray-900
+                dark:text-white
+              "
+            >
               Sprint Board
             </h1>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p
+              className="
+                mt-1
+                text-sm
+                text-gray-500
+              "
+            >
               Manage and track your sprint
               tasks
             </p>
           </div>
 
-          <div className="mb-5 flex flex-wrap items-center gap-3">
-            {/* Priority */}
+          <div
+            className="
+              mb-5
+              flex
+              flex-wrap
+              items-center
+              gap-3
+            "
+          >
             <select
               value={priorityFilter}
               onChange={(e) =>
                 setPriorityFilter(
                   e.target.value as
-                  | TaskPriority
-                  | "all"
+                    | TaskPriority
+                    | "all"
                 )
               }
-              className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
+              className="
+                rounded-lg
+                border
+                border-gray-200
+                bg-white
+                px-3
+                py-2
+                text-sm
+                text-gray-700
+                outline-none
+                transition
+                focus:border-blue-500
+
+                dark:border-white/[0.08]
+                dark:bg-[#15181c]
+                dark:text-gray-300
+              "
               aria-label="Filter by priority"
             >
               <option value="all">
@@ -241,58 +365,107 @@ function Board() {
               </option>
             </select>
 
-            {/* Assignee */}
             <select
               value={assigneeFilter}
               onChange={(e) =>
-                setAssigneeFilter(e.target.value)
+                setAssigneeFilter(
+                  e.target.value
+                )
               }
-              className="rounded-lg border border-white/[0.08] bg-[#15181c] px-3 py-2 text-sm text-gray-300 outline-none focus:border-blue-500"
+              className="
+                rounded-lg
+                border
+                border-gray-200
+                bg-white
+                px-3
+                py-2
+                text-sm
+                text-gray-700
+                outline-none
+                transition
+                focus:border-blue-500
+
+                dark:border-white/[0.08]
+                dark:bg-[#15181c]
+                dark:text-gray-300
+              "
               aria-label="Filter by assignee"
             >
               <option value="all">
                 All Assignees
               </option>
 
-              {assignees.map((assignee) => (
-                <option
-                  key={assignee}
-                  value={assignee}
-                >
-                  {assignee}
-                </option>
-              ))}
+              {assignees.map(
+                (assignee) => (
+                  <option
+                    key={assignee}
+                    value={assignee}
+                  >
+                    {assignee}
+                  </option>
+                )
+              )}
             </select>
 
-            {/* Clear */}
-            {(priorityFilter !== "all" ||
-              assigneeFilter !== "all") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPriorityFilter("all");
-                    setAssigneeFilter("all");
-                  }}
-                  className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-white/[0.05] hover:text-white"
-                >
-                  Clear Filters
-                </button>
-              )}
+            {(priorityFilter !==
+              "all" ||
+              assigneeFilter !==
+                "all") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPriorityFilter(
+                    "all"
+                  );
+                  setAssigneeFilter(
+                    "all"
+                  );
+                }}
+                className="
+                  rounded-lg
+                  px-3
+                  py-2
+                  text-sm
+                  text-gray-500
+                  transition
+                  hover:bg-gray-100
+                  hover:text-gray-900
+
+                  dark:hover:bg-white/[0.05]
+                  dark:hover:text-white
+                "
+              >
+                Clear Filters
+              </button>
+            )}
+
             <button
+              type="button"
               onClick={() =>
                 setIsCreateOpen(true)
               }
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium transition hover:bg-blue-500"
+              className="
+                flex
+                items-center
+                gap-2
+                rounded-lg
+                bg-blue-600
+                px-4
+                py-2.5
+                text-sm
+                font-medium
+                text-white
+                transition
+                hover:bg-blue-500
+              "
             >
               <FiPlus size={17} />
 
               Create Task
             </button>
           </div>
-
         </div>
 
-        {/* Kanban */}
         <DndContext
           sensors={sensors}
           collisionDetection={
@@ -305,21 +478,35 @@ function Board() {
             handleDragEnd
           }
         >
-          <div className="grid min-w-[1000px] grid-cols-4 gap-5">
-            {columns.map((column) => {
-              const columnTasks = filteredTasks.filter(
-                (task) => task.status === column.id
-              );
+          <div
+            className="
+              grid
+              min-w-[1000px]
+              grid-cols-4
+              gap-5
+            "
+          >
+            {columns.map(
+              (column) => {
+                const columnTasks =
+                  filteredTasks.filter(
+                    (task) =>
+                      task.status ===
+                      column.id
+                  );
 
-              return (
-                <KanbanColumn
-                  key={column.id}
-                  column={column}
-                  tasks={columnTasks}
-                  onTaskClick={setSelectedTask}
-                />
-              );
-            })}
+                return (
+                  <KanbanColumn
+                    key={column.id}
+                    column={column}
+                    tasks={columnTasks}
+                    onTaskClick={
+                      setSelectedTask
+                    }
+                  />
+                );
+              }
+            )}
           </div>
 
           <DragOverlay>
@@ -327,7 +514,7 @@ function Board() {
               <div className="rotate-2">
                 <TaskCard
                   task={activeTask}
-                  onClick={() => { }}
+                  onClick={() => {}}
                 />
               </div>
             ) : null}
@@ -335,7 +522,6 @@ function Board() {
         </DndContext>
       </div>
 
-      {/* Task drawer */}
       {selectedTask && (
         <TaskDrawer
           task={selectedTask}
@@ -345,7 +531,6 @@ function Board() {
         />
       )}
 
-      {/* Create task */}
       {isCreateOpen && (
         <CreateTaskDrawer
           onClose={() =>

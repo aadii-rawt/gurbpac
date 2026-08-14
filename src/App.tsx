@@ -36,11 +36,11 @@ const App = () => {
 
   const router = createBrowserRouter([
     {
-      path: "",
+      path: "/",
       element: <ProtectedRoute><Layout /></ProtectedRoute>,
       children: [
         {
-          path: "/",
+          path: "",
           element:<SuspenseWrapper>  <Dashboard /></SuspenseWrapper>
         },
         {

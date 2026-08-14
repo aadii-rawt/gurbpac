@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
   ResponsiveContainer,
   BarChart,
@@ -28,12 +30,6 @@ function Analytics() {
     (state) => state.tasks
   );
 
-  /*
-   * ==========================================
-   * Task Status
-   * ==========================================
-   */
-
   const statusData = [
     {
       name: "Backlog",
@@ -62,12 +58,6 @@ function Analytics() {
     },
   ];
 
-  /*
-   * ==========================================
-   * Priority Breakdown
-   * ==========================================
-   */
-
   const priorityData = [
     {
       name: "Low",
@@ -92,7 +82,6 @@ function Analytics() {
         "done"
       ),
     },
-
     {
       name: "Medium",
       Backlog: countPriority(
@@ -116,7 +105,6 @@ function Analytics() {
         "done"
       ),
     },
-
     {
       name: "High",
       Backlog: countPriority(
@@ -142,33 +130,11 @@ function Analytics() {
     },
   ];
 
-  /*
-   * ==========================================
-   * Completion Trend
-   * ==========================================
-   */
-
   const completionData =
     createCompletionTrend(tasks);
 
-  /*
-   * ==========================================
-   * Sprint Velocity
-   * ==========================================
-   *
-   * We group completed tasks by week.
-   * Each week represents the current
-   * sprint period in this frontend-only app.
-   */
-
   const velocityData =
     createSprintVelocity(tasks);
-
-  /*
-   * ==========================================
-   * Summary
-   * ==========================================
-   */
 
   const totalTasks = tasks.length;
 
@@ -193,27 +159,68 @@ function Analytics() {
         );
 
   return (
-    <div className="min-h-full bg-[#090a0c] p-6 text-white">
-      {/* Header */}
+    <div
+      className="
+        min-h-full
+        bg-gray-50
+        p-6
+        text-gray-900
+        transition-colors
+        duration-200
 
+        [--chart-grid:rgba(0,0,0,0.08)]
+        [--chart-text:#6b7280]
+        [--chart-tooltip-bg:#ffffff]
+        [--chart-tooltip-border:rgba(0,0,0,0.08)]
+
+        dark:bg-[#090a0c]
+        dark:text-white
+        dark:[--chart-grid:rgba(255,255,255,0.06)]
+        dark:[--chart-text:#6b7280]
+        dark:[--chart-tooltip-bg:#15181c]
+        dark:[--chart-tooltip-border:rgba(255,255,255,0.08)]
+      "
+    >
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold">
+        <h1
+          className="
+            text-2xl
+            font-semibold
+            text-gray-900
+            dark:text-white
+          "
+        >
           Analytics
         </h1>
 
-        <p className="mt-1 text-sm text-gray-500">
+        <p
+          className="
+            mt-1
+            text-sm
+            text-gray-500
+          "
+        >
           Track your sprint performance and
           task progress.
         </p>
       </div>
 
-      {/* Summary */}
-
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div
+        className="
+          mb-6
+          grid
+          grid-cols-1
+          gap-4
+          sm:grid-cols-2
+          xl:grid-cols-4
+        "
+      >
         <AnalyticsStat
           title="Total Tasks"
           value={totalTasks}
-          icon={<FiList size={19} />}
+          icon={
+            <FiList size={19} />
+          }
         />
 
         <AnalyticsStat
@@ -227,7 +234,9 @@ function Analytics() {
         <AnalyticsStat
           title="In Progress"
           value={inProgressTasks}
-          icon={<FiClock size={19} />}
+          icon={
+            <FiClock size={19} />
+          }
         />
 
         <AnalyticsStat
@@ -239,11 +248,14 @@ function Analytics() {
         />
       </div>
 
-      {/* Charts */}
-
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        {/* Sprint Velocity */}
-
+      <div
+        className="
+          grid
+          grid-cols-1
+          gap-5
+          xl:grid-cols-2
+        "
+      >
         <ChartCard
           title="Sprint Velocity"
           description="Completed tasks over time"
@@ -262,14 +274,14 @@ function Analytics() {
               }}
             >
               <CartesianGrid
-                stroke="rgba(255,255,255,0.06)"
+                stroke="var(--chart-grid)"
                 vertical={false}
               />
 
               <XAxis
                 dataKey="sprint"
                 tick={{
-                  fill: "#6b7280",
+                  fill: "var(--chart-text)",
                   fontSize: 11,
                 }}
                 axisLine={false}
@@ -279,7 +291,7 @@ function Analytics() {
               <YAxis
                 allowDecimals={false}
                 tick={{
-                  fill: "#6b7280",
+                  fill: "var(--chart-text)",
                   fontSize: 11,
                 }}
                 axisLine={false}
@@ -289,11 +301,11 @@ function Analytics() {
               <Tooltip
                 contentStyle={{
                   background:
-                    "#15181c",
+                    "var(--chart-tooltip-bg)",
                   border:
-                    "1px solid rgba(255,255,255,0.08)",
+                    "1px solid var(--chart-tooltip-border)",
                   borderRadius: "8px",
-                  color: "#fff",
+                  color: "var(--chart-text)",
                 }}
               />
 
@@ -312,8 +324,6 @@ function Analytics() {
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
-
-        {/* Task Status */}
 
         <ChartCard
           title="Task Status"
@@ -344,24 +354,23 @@ function Analytics() {
               <Tooltip
                 contentStyle={{
                   background:
-                    "#15181c",
+                    "var(--chart-tooltip-bg)",
                   border:
-                    "1px solid rgba(255,255,255,0.08)",
+                    "1px solid var(--chart-tooltip-border)",
                   borderRadius: "8px",
-                  color: "#fff",
+                  color: "var(--chart-text)",
                 }}
               />
 
               <Legend
                 wrapperStyle={{
                   fontSize: "12px",
+                  color: "var(--chart-text)",
                 }}
               />
             </PieChart>
           </ResponsiveContainer>
         </ChartCard>
-
-        {/* Priority Breakdown */}
 
         <ChartCard
           title="Priority Breakdown"
@@ -381,14 +390,14 @@ function Analytics() {
               }}
             >
               <CartesianGrid
-                stroke="rgba(255,255,255,0.06)"
+                stroke="var(--chart-grid)"
                 vertical={false}
               />
 
               <XAxis
                 dataKey="name"
                 tick={{
-                  fill: "#6b7280",
+                  fill: "var(--chart-text)",
                   fontSize: 11,
                 }}
                 axisLine={false}
@@ -398,7 +407,7 @@ function Analytics() {
               <YAxis
                 allowDecimals={false}
                 tick={{
-                  fill: "#6b7280",
+                  fill: "var(--chart-text)",
                   fontSize: 11,
                 }}
                 axisLine={false}
@@ -408,14 +417,19 @@ function Analytics() {
               <Tooltip
                 contentStyle={{
                   background:
-                    "#15181c",
+                    "var(--chart-tooltip-bg)",
                   border:
-                    "1px solid rgba(255,255,255,0.08)",
+                    "1px solid var(--chart-tooltip-border)",
                   borderRadius: "8px",
+                  color: "var(--chart-text)",
                 }}
               />
 
-              <Legend />
+              <Legend
+                wrapperStyle={{
+                  color: "var(--chart-text)",
+                }}
+              />
 
               <Bar
                 dataKey="Backlog"
@@ -444,8 +458,6 @@ function Analytics() {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Completion Trend */}
-
         <ChartCard
           title="Completion Trend"
           description="Tasks completed over time"
@@ -464,14 +476,14 @@ function Analytics() {
               }}
             >
               <CartesianGrid
-                stroke="rgba(255,255,255,0.06)"
+                stroke="var(--chart-grid)"
                 vertical={false}
               />
 
               <XAxis
                 dataKey="date"
                 tick={{
-                  fill: "#6b7280",
+                  fill: "var(--chart-text)",
                   fontSize: 10,
                 }}
                 axisLine={false}
@@ -481,7 +493,7 @@ function Analytics() {
               <YAxis
                 allowDecimals={false}
                 tick={{
-                  fill: "#6b7280",
+                  fill: "var(--chart-text)",
                   fontSize: 11,
                 }}
                 axisLine={false}
@@ -491,10 +503,11 @@ function Analytics() {
               <Tooltip
                 contentStyle={{
                   background:
-                    "#15181c",
+                    "var(--chart-tooltip-bg)",
                   border:
-                    "1px solid rgba(255,255,255,0.08)",
+                    "1px solid var(--chart-tooltip-border)",
                   borderRadius: "8px",
+                  color: "var(--chart-text)",
                 }}
               />
 
@@ -520,12 +533,6 @@ function Analytics() {
   );
 }
 
-/*
- * ==========================================
- * Helper: Priority count
- * ==========================================
- */
-
 function countPriority(
   tasks: any[],
   priority: string,
@@ -537,12 +544,6 @@ function countPriority(
       task.status === status
   ).length;
 }
-
-/*
- * ==========================================
- * Completion trend
- * ==========================================
- */
 
 function createCompletionTrend(
   tasks: any[]
@@ -582,12 +583,6 @@ function createCompletionTrend(
   );
 }
 
-/*
- * ==========================================
- * Sprint velocity
- * ==========================================
- */
-
 function createSprintVelocity(
   tasks: any[]
 ) {
@@ -607,10 +602,6 @@ function createSprintVelocity(
       task.completedAt
     );
 
-    /*
-     * Use the ISO week as the sprint
-     * period for this frontend-only board.
-     */
     const firstDay =
       new Date(
         date.getFullYear(),
@@ -641,12 +632,6 @@ function createSprintVelocity(
   );
 }
 
-/*
- * ==========================================
- * Chart card
- * ==========================================
- */
-
 function ChartCard({
   title,
   description,
@@ -657,13 +642,41 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-w-0 rounded-xl border border-white/[0.06] bg-[#0d0f12] p-5">
+    <div
+      className="
+        min-w-0
+        rounded-xl
+        border
+        border-gray-200
+        bg-white
+        p-5
+        shadow-sm
+        transition-colors
+
+        dark:border-white/[0.06]
+        dark:bg-[#0d0f12]
+        dark:shadow-none
+      "
+    >
       <div className="mb-5">
-        <h2 className="text-sm font-semibold">
+        <h2
+          className="
+            text-sm
+            font-semibold
+            text-gray-900
+            dark:text-white
+          "
+        >
           {title}
         </h2>
 
-        <p className="mt-1 text-xs text-gray-500">
+        <p
+          className="
+            mt-1
+            text-xs
+            text-gray-500
+          "
+        >
           {description}
         </p>
       </div>
@@ -675,12 +688,6 @@ function ChartCard({
   );
 }
 
-/*
- * ==========================================
- * Analytics stat
- * ==========================================
- */
-
 function AnalyticsStat({
   title,
   value,
@@ -691,16 +698,53 @@ function AnalyticsStat({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0d0f12] p-5">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+    <div
+      className="
+        rounded-xl
+        border
+        border-gray-200
+        bg-white
+        p-5
+        shadow-sm
+        transition-colors
+
+        dark:border-white/[0.06]
+        dark:bg-[#0d0f12]
+        dark:shadow-none
+      "
+    >
+      <div
+        className="
+          flex h-9 w-9
+          items-center justify-center
+          rounded-lg
+          bg-blue-500/10
+          text-blue-600
+          dark:text-blue-400
+        "
+      >
         {icon}
       </div>
 
-      <p className="mt-4 text-xs text-gray-500">
+      <p
+        className="
+          mt-4
+          text-xs
+          text-gray-500
+        "
+      >
         {title}
       </p>
 
-      <p className="mt-1 text-2xl font-semibold">
+      <p
+        className="
+          mt-1
+          text-2xl
+          font-semibold
+          text-gray-900
+          dark:text-white
+        "
+      >
         {value}
       </p>
     </div>

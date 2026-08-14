@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import {
   useAppStore,
 } from "../store/appStore";
+
 import StatCard from "../components/StatCard";
 import ProgressItem from "../components/ProgressItem";
 import StatusBadge from "../components/StatusBadge";
@@ -48,7 +49,6 @@ function Dashboard() {
       task.status === "done"
   ).length;
 
-
   const progress =
     totalTasks === 0
       ? 0
@@ -63,39 +63,94 @@ function Dashboard() {
     .reverse();
 
   return (
-    <div className="min-h-full bg-[#090a0c] p-6 text-white">
+    <div
+      className="
+        min-h-full
+        bg-gray-50
+        p-6
+        text-gray-900
+        transition-colors
+        duration-200
+
+        dark:bg-[#090a0c]
+        dark:text-white
+      "
+    >
+      {/* Welcome */}
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold">
+        <h1
+          className="
+            text-2xl
+            font-semibold
+            text-gray-900
+            dark:text-white
+          "
+        >
           Good to see you,{" "}
           {user?.firstName || "User"} 👋
         </h1>
 
-        <p className="mt-1 text-sm text-gray-500">
+        <p
+          className="
+            mt-1
+            text-sm
+            text-gray-500
+            dark:text-gray-500
+          "
+        >
           Here's what's happening with
           your sprint today.
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Stats */}
+      <div
+        className="
+          mb-6
+          grid
+          grid-cols-1
+          gap-4
+          sm:grid-cols-2
+          xl:grid-cols-4
+        "
+      >
         <StatCard
           title="Total Tasks"
           value={totalTasks}
-          icon={<FiList size={20} />}
-          iconClass="bg-blue-500/10 text-blue-400"
+          icon={
+            <FiList size={20} />
+          }
+          iconClass="
+            bg-blue-500/10
+            text-blue-600
+            dark:text-blue-400
+          "
         />
 
         <StatCard
           title="In Progress"
           value={inProgressTasks}
-          icon={<FiClock size={20} />}
-          iconClass="bg-yellow-500/10 text-yellow-400"
+          icon={
+            <FiClock size={20} />
+          }
+          iconClass="
+            bg-yellow-500/10
+            text-yellow-600
+            dark:text-yellow-400
+          "
         />
 
         <StatCard
           title="In Review"
           value={reviewTasks}
-          icon={<FiEye size={20} />}
-          iconClass="bg-purple-500/10 text-purple-400"
+          icon={
+            <FiEye size={20} />
+          }
+          iconClass="
+            bg-purple-500/10
+            text-purple-600
+            dark:text-purple-400
+          "
         />
 
         <StatCard
@@ -104,34 +159,86 @@ function Dashboard() {
           icon={
             <FiCheckCircle size={20} />
           }
-          iconClass="bg-green-500/10 text-green-400"
+          iconClass="
+            bg-green-500/10
+            text-green-600
+            dark:text-green-400
+          "
         />
       </div>
 
+      {/* Sprint Progress */}
       <div className="mb-6">
-        {/* Sprint progress */}
-        <div className="rounded-xl border border-white/[0.06] bg-[#0d0f12] p-5 xl:col-span-2">
+        <div
+          className="
+            rounded-xl
+            border
+            border-gray-200
+            bg-white
+            p-5
+            shadow-sm
+            transition-colors
+
+            dark:border-white/[0.06]
+            dark:bg-[#0d0f12]
+            dark:shadow-none
+          "
+        >
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold">
+              <h2
+                className="
+                  text-sm
+                  font-semibold
+                  text-gray-900
+                  dark:text-white
+                "
+              >
                 Sprint Progress
               </h2>
 
-              <p className="mt-1 text-xs text-gray-500">
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  text-gray-500
+                "
+              >
                 Overall completion of your
                 current sprint
               </p>
             </div>
 
-            <span className="text-2xl font-semibold text-blue-400">
+            <span
+              className="
+                text-2xl
+                font-semibold
+                text-blue-600
+                dark:text-blue-400
+              "
+            >
               {progress}%
             </span>
           </div>
 
           {/* Progress bar */}
-          <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+          <div
+            className="
+              h-2
+              overflow-hidden
+              rounded-full
+              bg-gray-100
+              dark:bg-white/[0.06]
+            "
+          >
             <div
-              className="h-full rounded-full bg-blue-600 transition-all duration-500"
+              className="
+                h-full
+                rounded-full
+                bg-blue-600
+                transition-all
+                duration-500
+              "
               style={{
                 width: `${progress}%`,
               }}
@@ -139,7 +246,14 @@ function Dashboard() {
           </div>
 
           {/* Breakdown */}
-          <div className="mt-6 grid grid-cols-4 gap-3">
+          <div
+            className="
+              mt-6
+              grid
+              grid-cols-4
+              gap-3
+            "
+          >
             <ProgressItem
               label="Backlog"
               value={backlogTasks}
@@ -161,17 +275,54 @@ function Dashboard() {
             />
           </div>
         </div>
-
       </div>
 
-      <div className="rounded-xl border border-white/[0.06] bg-[#0d0f12]">
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+      {/* Recent Tasks */}
+      <div
+        className="
+          rounded-xl
+          border
+          border-gray-200
+          bg-white
+          shadow-sm
+
+          dark:border-white/[0.06]
+          dark:bg-[#0d0f12]
+          dark:shadow-none
+        "
+      >
+        {/* Header */}
+        <div
+          className="
+            flex
+            items-center
+            justify-between
+            border-b
+            border-gray-200
+            px-5 py-4
+
+            dark:border-white/[0.06]
+          "
+        >
           <div>
-            <h2 className="text-sm font-semibold">
+            <h2
+              className="
+                text-sm
+                font-semibold
+                text-gray-900
+                dark:text-white
+              "
+            >
               Recent Tasks
             </h2>
 
-            <p className="mt-1 text-xs text-gray-500">
+            <p
+              className="
+                mt-1
+                text-xs
+                text-gray-500
+              "
+            >
               Recently added sprint tasks
             </p>
           </div>
@@ -180,30 +331,85 @@ function Dashboard() {
             onClick={() =>
               navigate("/board")
             }
-            className="text-xs text-blue-400 hover:text-blue-300"
+            className="
+              text-xs
+              text-blue-600
+              transition
+              hover:text-blue-700
+
+              dark:text-blue-400
+              dark:hover:text-blue-300
+            "
           >
             View all
           </button>
         </div>
 
+        {/* Empty state */}
         {recentTasks.length === 0 ? (
-          <div className="flex min-h-[180px] items-center justify-center text-sm text-gray-600">
+          <div
+            className="
+              flex
+              min-h-[180px]
+              items-center
+              justify-center
+              text-sm
+              text-gray-400
+              dark:text-gray-600
+            "
+          >
             No tasks available
           </div>
         ) : (
-          <div className="divide-y divide-white/[0.05]">
+          <div
+            className="
+              divide-y
+              divide-gray-100
+              dark:divide-white/[0.05]
+            "
+          >
             {recentTasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-white/[0.02]"
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  gap-4
+                  px-5 py-4
+                  transition
+
+                  hover:bg-gray-50
+
+                  dark:hover:bg-white/[0.02]
+                "
               >
                 {/* Task info */}
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-200">
+                  <p
+                    className="
+                      truncate
+                      text-sm
+                      font-medium
+                      text-gray-900
+                      dark:text-gray-200
+                    "
+                  >
                     {task.title}
                   </p>
 
-                  <div className="mt-1 flex items-center gap-3 text-xs text-gray-600">
+                  <div
+                    className="
+                      mt-1
+                      flex
+                      items-center
+                      gap-3
+                      text-xs
+                      text-gray-400
+
+                      dark:text-gray-600
+                    "
+                  >
                     <span>
                       {task.assignee}
                     </span>
@@ -230,7 +436,5 @@ function Dashboard() {
     </div>
   );
 }
-
-
 
 export default Dashboard;

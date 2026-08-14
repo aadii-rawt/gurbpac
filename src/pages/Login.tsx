@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/appStore";
 import type { LoginResponse, User } from "../types/user";
 
-
 function Login() {
   const navigate = useNavigate();
 
@@ -13,14 +12,20 @@ function Login() {
     (state) => state.setAuth
   );
 
-  const [email, setEmail] = useState("emily.johnson@x.dummyjson.com");
-  const [password, setPassword] = useState("emilyspass");
+  const [email, setEmail] = useState(
+    "emily.johnson@x.dummyjson.com"
+  );
 
-  const [loading, setLoading] = useState(false);
+  const [password, setPassword] =
+    useState("emilyspass");
+
+  const [loading, setLoading] =
+    useState(false);
+
   const [error, setError] = useState("");
 
   const handleLogin = async (
-    e: any
+    e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
 
@@ -28,18 +33,14 @@ function Login() {
     setError("");
 
     try {
-      
       const userResponse = await axios.get<{
         users: User[];
-      }>(
-        "https://dummyjson.com/users/filter",
-        {
-          params: {
-            key: "email",
-            value: email,
-          },
-        }
-      );
+      }>("https://dummyjson.com/users/filter", {
+        params: {
+          key: "email",
+          value: email,
+        },
+      });
 
       const user = userResponse.data.users[0];
 
@@ -58,14 +59,16 @@ function Login() {
           }
         );
 
-        console.log(response)
-
       setAuth(
         response.data,
         response.data.accessToken,
         response.data.refreshToken
       );
-      localStorage.setItem("refreshToken", response.data.refreshToken);
+
+      localStorage.setItem(
+        "refreshToken",
+        response.data.refreshToken
+      );
 
       navigate("/");
     } catch (error) {
@@ -89,8 +92,6 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#090a0c] px-4">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111315] p-8 text-white shadow-2xl">
-      
-
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold">
             Welcome back
@@ -105,7 +106,6 @@ function Login() {
           onSubmit={handleLogin}
           className="space-y-5"
         >
-          {/* Email */}
           <div>
             <label
               htmlFor="email"
@@ -127,7 +127,6 @@ function Login() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label
               htmlFor="password"
@@ -149,14 +148,12 @@ function Login() {
             />
           </div>
 
-          {/* Error */}
           {error && (
             <div className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}
             </div>
           )}
 
-          {/* Login */}
           <button
             type="submit"
             disabled={loading}
