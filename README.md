@@ -1,32 +1,74 @@
-# React + TypeScript + Vite
+# SprintDesk
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+SprintDesk is a responsive sprint management dashboard built as a frontend engineering assignment.
 
-Currently, two official plugins are available:
+It provides a workspace for managing sprint tasks through a Kanban board, viewing analytics, receiving simulated real-time notifications, and managing authentication.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The application focuses on clean component architecture, TypeScript, state management, responsive UI, accessibility, performance optimization, and reusable UI components.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Live Demo
 
-## Expanding the Oxlint configuration
+Live Application:
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+https://gurbpac.aadii.site/login
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+## GitHub Repository
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+https://github.com/aadii-rawt/gurbpac
+
+---
+
+# Features
+
+## Authentication
+
+- Login using DummyJSON authentication API
+- Access token stored in application memory
+- Refresh token persisted using localStorage
+- Axios interceptor for attaching Bearer tokens
+- Silent token refresh
+- Automatic retry after successful token refresh
+- Protected authenticated routes
+- Prevent authenticated users from accessing `/login`
+- Session restoration after page refresh
+- Logout functionality
+- Authentication loading state during session validation
+- Remember Me functionality with simulated 30-day persistence
+
+## Known Limitations / Incomplete Requirements
+
+### Password Strength Indicator
+
+The assignment mentions a Password Strength Indicator as an optional bonus feature.
+
+However, the provided requirements only define a login flow and do not specify a signup/registration page or how password strength should be used during authentication.
+
+Because of this ambiguity, the password strength indicator was not implemented.
+
+---
+
+### Signup / Registration
+
+The assignment specifies a Login page with email and password but does not provide requirements for a Signup or Registration flow.
+
+Therefore, a signup page was not implemented.
+
+---
+
+### Real-Time Notification Trigger
+
+The notification requirement specifies polling:
+
+https://jsonplaceholder.typicode.com/posts?_limit=5
+
+and treating new post IDs as notifications.
+
+However, JSONPlaceholder returns mock/static data for this endpoint and the assignment does not provide an API or mechanism for creating new posts from the application.
+
+Because of this, there is no actual external source that can continuously generate new notifications for testing.
+
+A manual trigger was therefore added to demonstrate the notification functionality.
+
+---
