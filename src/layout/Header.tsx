@@ -2,9 +2,19 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppStore } from "../store/appStore";
 import NotificationPanel from "../components/NotificationPanel";
-import { FiBell, FiX, FiMoon, FiSun } from "react-icons/fi";
+import {
+  FiBell,
+  FiX,
+  FiMoon,
+  FiSun,
+  FiMenu,
+} from "react-icons/fi";
 
-const Header = React.memo(() => {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+const Header = React.memo(({ onMenuClick }: HeaderProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -182,9 +192,35 @@ const Header = React.memo(() => {
         dark:text-white
       "
     >
-      {/* Page title */}
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
+      {/* Left side */}
+      <div className="flex min-w-0 items-center gap-3">
+        {/* Mobile hamburger */}
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          className="
+      flex h-9 w-9
+      shrink-0
+      items-center justify-center
+      rounded-lg
+      text-gray-500
+      transition
+      hover:bg-gray-100
+      hover:text-gray-900
+
+      dark:text-gray-400
+      dark:hover:bg-white/[0.05]
+      dark:hover:text-white
+
+      md:hidden
+    "
+        >
+          <FiMenu size={22} />
+        </button>
+
+        {/* Page title */}
+        <h1 className="truncate text-lg font-semibold tracking-tight sm:text-xl">
           {pageTitle}
         </h1>
       </div>
@@ -438,10 +474,9 @@ const Header = React.memo(() => {
                     relative h-5 w-9
                     rounded-full
                     transition-colors
-                    ${
-                      darkMode
-                        ? "bg-blue-500"
-                        : "bg-gray-300 dark:bg-gray-600"
+                    ${darkMode
+                      ? "bg-blue-500"
+                      : "bg-gray-300 dark:bg-gray-600"
                     }
                   `}
                 >
@@ -453,10 +488,9 @@ const Header = React.memo(() => {
                       bg-white
                       shadow-sm
                       transition-transform
-                      ${
-                        darkMode
-                          ? "-translate-x-4"
-                          : "translate-x-0.5"
+                      ${darkMode
+                        ? "-translate-x-4"
+                        : "translate-x-0.5"
                       }
                     `}
                   />

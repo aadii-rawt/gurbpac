@@ -15,7 +15,8 @@ export type AuthSlice = {
     setAuth: (
         user: User,
         accessToken: string,
-        refreshToken: string
+        refreshToken: string,
+        rememberMe: boolean
     ) => void;
 
     setAccessToken: (token: string) => void;
@@ -23,6 +24,11 @@ export type AuthSlice = {
     restoreSession: () => Promise<void>;
 
     logout: () => void;
+
+    rememberMe: boolean;
+    rememberMeExpiry: number | null;
+
+    setRememberMe: (value: boolean) => void;
 }
 
 export const createAuthSlice: StateCreator<
@@ -38,14 +44,50 @@ export const createAuthSlice: StateCreator<
     setAuth: (
         user,
         accessToken,
-        refreshToken
+        refreshToken,
+        rememberMe
     ) => {
+        localStorage.setItem(
+            "refreshToken",
+            refreshToken
+        );
+
+        if (rememberMe) {
+            localStorage.setItem(
+                "rememberMe",
+                "true"
+            );
+
+            localStorage.setItem(
+                "rememberMeExpiry",
+                String(
+                    Date.now() +
+                    30 * 24 * 60 * 60 * 1000
+                )
+            );
+        } else {
+            localStorage.removeItem(
+                "rememberMe"
+            );
+
+            localStorage.removeItem(
+                "rememberMeExpiry"
+            );
+        }
 
         set({
             user,
             accessToken,
             refreshToken,
             isAuthenticated: true,
+            isInitializing: false,
+
+            rememberMe,
+
+            rememberMeExpiry: rememberMe
+                ? Date.now() +
+                30 * 24 * 60 * 60 * 1000
+                : null,
         });
     },
     setAccessToken: (token) => {
@@ -59,68 +101,77 @@ export const createAuthSlice: StateCreator<
             localStorage.getItem(
                 "refreshToken"
             );
-        // No refresh token 
+
+        const rememberMe =
+            localStorage.getItem(
+                "rememberMe"
+            ) === "true";
+
+        const expiry = Number(
+            localStorage.getItem(
+                "rememberMeExpiry"
+            )
+        );
+
+        // No refresh token
         if (!refreshToken) {
             set({
                 isInitializing: false,
+                isAuthenticated: false,
+            });
+
+            return;
+        }
+
+        // Remember Me expired
+        if (
+            rememberMe &&
+            expiry &&
+            Date.now() > expiry
+        ) {
+            localStorage.removeItem(
+                "refreshToken"
+            );
+
+            localStorage.removeItem(
+                "rememberMe"
+            );
+
+            localStorage.removeItem(
+                "rememberMeExpiry"
+            );
+
+            set({
+                user: null,
+                accessToken: null,
+                refreshToken: null,
+                isAuthenticated: false,
+                isInitializing: false,
+                rememberMe: false,
+                rememberMeExpiry: null,
             });
 
             return;
         }
 
         try {
-            
-            const response = await fetch(
+            // Your existing refresh API call
+            const response = await axios.post(
                 "https://dummyjson.com/auth/refresh",
                 {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-
-                    body: JSON.stringify({
-                        refreshToken,
-                        expiresInMins: 30,
-                    }),
+                    refreshToken,
+                    expiresInMins: 30,
                 }
             );
 
-            if (!response.ok) {
-                throw new Error(
-                    "Refresh token expired"
-                );
-            }
-
-            const data = await response.json();
-
-            localStorage.setItem(
-                "refreshToken",
-                data.refreshToken
-            );
-            const userResponse = await fetch(
-                "https://dummyjson.com/auth/me",
-                {
-                    headers: {
-                        Authorization: `Bearer ${data.accessToken}`,
-                    },
-                }
-            );
-
-            if (!userResponse.ok) {
-                throw new Error(
-                    "Unable to restore session"
-                );
-            }
-
-            const user = await userResponse.json();
+            const data = response.data;
 
             set({
-                user,
                 accessToken: data.accessToken,
 
-                // New refresh token.
-                refreshToken: data.refreshToken,
+                refreshToken:
+                    data.refreshToken ||
+                    refreshToken,
 
                 isAuthenticated: true,
 
@@ -131,6 +182,7 @@ export const createAuthSlice: StateCreator<
                 "Session restoration failed:",
                 error
             );
+
             localStorage.removeItem(
                 "refreshToken"
             );
@@ -163,11 +215,13 @@ export const createAuthSlice: StateCreator<
         localStorage.removeItem(
             "refreshToken"
         );
+
         localStorage.removeItem(
-            "sprintdesk_seen_post_ids"
+            "rememberMe"
         );
+
         localStorage.removeItem(
-            "sprintdesk_tasks"
+            "rememberMeExpiry"
         );
 
         set({
@@ -175,7 +229,46 @@ export const createAuthSlice: StateCreator<
             accessToken: null,
             refreshToken: null,
             isAuthenticated: false,
+            isInitializing: false,
+            rememberMe: false,
+            rememberMeExpiry: null,
         });
     },
+
+    setRememberMe: (value) => {
+        if (value) {
+            localStorage.setItem(
+                "rememberMe",
+                "true"
+            );
+        } else {
+            localStorage.removeItem(
+                "rememberMe"
+            );
+
+            localStorage.removeItem(
+                "rememberMeExpiry"
+            );
+        }
+
+        set({
+            rememberMe: value,
+            rememberMeExpiry: value
+                ? Date.now() +
+                30 * 24 * 60 * 60 * 1000
+                : null,
+        });
+    },
+    rememberMe:
+        localStorage.getItem(
+            "rememberMe"
+        ) === "true",
+
+    rememberMeExpiry:
+        Number(
+            localStorage.getItem(
+                "rememberMeExpiry"
+            )
+        ) || null,
 });
 

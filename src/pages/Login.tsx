@@ -7,7 +7,8 @@ import type { LoginResponse, User } from "../types/user";
 
 function Login() {
   const navigate = useNavigate();
-
+  const [rememberMe, setRememberMe] =
+    useState(false);
   const setAuth = useAppStore(
     (state) => state.setAuth
   );
@@ -62,7 +63,8 @@ function Login() {
       setAuth(
         response.data,
         response.data.accessToken,
-        response.data.refreshToken
+        response.data.refreshToken,
+        rememberMe
       );
 
       localStorage.setItem(
@@ -75,7 +77,7 @@ function Login() {
       if (axios.isAxiosError(error)) {
         setError(
           error.response?.data?.message ||
-            "Invalid email or password"
+          "Invalid email or password"
         );
       } else {
         setError(
@@ -147,12 +149,29 @@ function Login() {
               className="h-12 w-full rounded-xl border border-white/10 bg-[#0b0c0e] px-4 text-sm text-white outline-none placeholder:text-gray-600 focus:border-blue-500"
             />
           </div>
+          <div className="flex items-center justify-between">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) =>
+                  setRememberMe(
+                    e.target.checked
+                  )
+                }
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+
+              <span>Remember me for 30 days</span>
+            </label>
+          </div>
 
           {error && (
             <div className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400">
               {error}
             </div>
           )}
+
 
           <button
             type="submit"

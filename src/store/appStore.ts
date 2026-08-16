@@ -27,7 +27,8 @@ type AppStore = {
   setAuth: (
     user: User,
     accessToken: string,
-    refreshToken: string
+    refreshToken: string,
+    rememberMe: boolean
   ) => void;
 
   setAccessToken: (token: string) => void;
@@ -35,6 +36,11 @@ type AppStore = {
   restoreSession: () => Promise<void>;
 
   logout: () => void;
+
+  rememberMe: boolean;
+  rememberMeExpiry: number | null;
+
+  setRememberMe: (value: boolean) => void;
 
   tasks: BoardTask[];
 
@@ -101,6 +107,7 @@ type AppStore = {
   clearNotificationToast: () => void;
 
   simulateNotification: () => void;
+
 };
 
 
